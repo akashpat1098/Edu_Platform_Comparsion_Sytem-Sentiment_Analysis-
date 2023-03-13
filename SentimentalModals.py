@@ -1,32 +1,11 @@
-import pymongo
-import re
+#########  Sentiment using pre-trained model of robertai.e hugging face
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from scipy.special import softmax
-from pprint import pprint
 import numpy as np
-import nltk
-# nltk.download('vader_lexicon')
-from nltk.sentiment import SentimentIntensityAnalyzer
-
-
 model_path = "sentiment_model"
 tokenizer_path = "tokenizer"
-
 model = AutoModelForSequenceClassification.from_pretrained(model_path)
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
-
 labels = ['Negative', 'Neutral', 'Positive']
-
-
-def clean_tweet(tweet):
-    '''
-    Utility function to clean tweet text by removing links, special characters
-    using simple regex statements.
-    '''
-    return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
-
-
-
 def get_tweet_sentiment(text, model=model, tokenizer=tokenizer, labels=labels):
     encoded_input = tokenizer.encode_plus(text, return_tensors='pt')
     output = model(**encoded_input)
@@ -36,7 +15,16 @@ def get_tweet_sentiment(text, model=model, tokenizer=tokenizer, labels=labels):
     ranking = np.argsort(scores)
     ranking = ranking[::-1]
     return labels[ranking[0]]
+print(get_tweet_sentiment("I do not hate you"))
 
+
+
+
+
+################ Sentiment using nltk
+import nltk
+# nltk.download('vader_lexicon')
+from nltk.sentiment import SentimentIntensityAnalyzer
 def get_sentiment_using_nltk(text):
     sid = SentimentIntensityAnalyzer()
     sentiment_scores = sid.polarity_scores(text)
@@ -46,8 +34,12 @@ def get_sentiment_using_nltk(text):
         return 'Negative'
     else:
         return 'Neutral'
-    
+print(get_sentiment_using_nltk("I do not hate you"))
 
+
+
+
+############### Set up your OpenAI API key
 import openai
 from decouple import config
 # Set up your OpenAI API key
@@ -80,31 +72,5 @@ def get_sentiment(text):
     else:
         return "neutral"
 
-def getData(collection_name):
-    """connecting to localdatabase and extracting data from same and returns tweets as Cursor iterator"""
-    client=pymongo.MongoClient()
-    db=client["Sentimental_Tweets"]
-    collection=db[collection_name]
-    tweets=collection.find({},{"sentiment":0})
-    print(f"Getting data from {collection_name} is done")
-    return list(tweets)
-
-def updateData(collection_name,sentiment,tweet_id):
-    """connecting to localdatabase and updating the sentiments of tweets on basis of _id"""
-    client=pymongo.MongoClient()
-    db=client["Sentimental_Tweets"]
-    collection=db[collection_name]
-    collection.update_one({"_id":tweet_id},{"$set":{"sentiment":sentiment}},upsert=False,array_filters=None)   
-
-
-import time
-if __name__=="__main__":
-    collection_list=["WhiteHatJr_Tweets","Vedantu_Tweets","BYJUS_Tweets","Cuemath_Tweets"]
-    # collection_list=["Cuemath_Tweets"]
-    for collection_name in collection_list:
-        tweets=getData(collection_name) #it is cursor iterator
-        for tweet in tweets: 
-            sentiment=get_sentiment_using_nltk(tweet["cleanedTweet"])
-            updateData(collection_name,sentiment,tweet["_id"])
-   
+print(get_sentiment("I do not hate you"))
 

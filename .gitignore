@@ -1,1 +1,6 @@
 /env
+.env
+/sentiment_model
+/tokenizer
+/myenv
+/.ipynb_checkpoints
