@@ -7,7 +7,6 @@ import tweepy
 from decouple import config
 from pprint import pprint
 import re
-import csv
 
 def connectToTwitter():
     """To Authorize the connection with Twitter API"""
@@ -75,35 +74,42 @@ def storeInDB(data,collection_name):
         else:
             print(f"|{tweet['tweet']}| is a dublicate entry\n")
 
-def dataToCSV(collection_name):
-    # Connect to MongoDB
-    client = pymongo.MongoClient()
-    db = client['Sentimental_Tweets']
-    collection=db[collection_name]
-    cursor = collection.find()
-    data = [(doc['_id'], doc['tweet'], doc['user'], doc['cleanedTweet']) for doc in cursor]
-    
-    # Save data to CSV file
-    with open(f'{collection_name}.csv', 'w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(['_id', 'tweet', 'user', 'cleanedTweet'])
-        writer.writerows(data)
 
-if __name__=="__main__":
+def main_extraction(userList):
     query={"WhiteHatJr_Tweets":["@whitehatjunior","#whitehatjunior","#whitehatjr"],
     "Vedantu_Tweets":["@vedantu_learn","@VedantuCare","#vedantu","#vedantuscam","#vedantufraud","#boycottvedantu"],
     "BYJUS_Tweets":["@ByjusSupport","@BYJU","#byju","#byjus","#byjusscam"],
     "Cuemath_Tweets":["@Cuemath","@CuemathPune","#cuemath","#CuemathMethod","#CuemathFest","#cuemathistheplace"]}
-    
-    api=connectToTwitter()
-    for collection in query:
+    # userList = ['WhiteHatJr_Tweets','Vedantu_Tweets']
+    try:
+        api=connectToTwitter()
+    except:
+        print('error')
+    for collection in userList:
         for hastag in query[collection]:
             keywords=hastag
             collection_name=collection
             limit=15
             tweets_list=extract_tweets(api,keywords,limit)
             storeInDB(tweets_list,collection_name)
-            dataToCSV(collection)
+
+
+if __name__=="__main__":
+    query={"WhiteHatJr_Tweets":["@whitehatjunior","#whitehatjunior","#whitehatjr"],
+    "Vedantu_Tweets":["@vedantu_learn","@VedantuCare","#vedantu","#vedantuscam","#vedantufraud","#boycottvedantu"],
+    "BYJUS_Tweets":["@ByjusSupport","@BYJU","#byju","#byjus","#byjusscam"],
+    "Cuemath_Tweets":["@Cuemath","@CuemathPune","#cuemath","#CuemathMethod","#CuemathFest","#cuemathistheplace"]}
+    # userList = ['WhiteHatJr_Tweets','Vedantu_Tweets','BYJUS_Tweets','Cuemath_Tweets']
+    userList=['Cuemath_Tweets']
+    api=connectToTwitter()
+    for collection in userList:
+        for hastag in query[collection]:
+            keywords=hastag
+            collection_name=collection
+            limit=30
+            tweets_list=extract_tweets(api,keywords,limit)
+            storeInDB(tweets_list,collection_name)
+            
 
 
 

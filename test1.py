@@ -1,3 +1,4 @@
+'''Testing for fetching good tweets'''
 import tweepy
 import pymongo
 from decouple import config

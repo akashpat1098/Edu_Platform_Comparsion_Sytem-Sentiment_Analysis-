@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="akash">
+        <div class="sel-div">
+            <select class="sel" id="dropdown">
+                <option selected disabled>Choose the Platform Name</option>
+                <option value="WhiteHatJr_Tweets">WhiteHatJr</option>
+                <option value="Vedantu_Tweets">Vedantu</option>
+                <option value="BYJUS_Tweets">BYJUS</option>
+                <option value="Cuemath_Tweets">Cuemath</option>
+            </select>
+            <button class="add-btn" id="add-btn">Add</button>
+        </div>
+        <div id="list"></div>
+        <button class="btn" id="btn" type="button">Compare</button>
+        <div id="main-div">
+            <!-- <div class="div" id="result-div"></div> -->
+        </div>
+    </div>
+</body>
+<script>
+
+        
+    
+    let platformList = [];
+    let currPlatform = '';
+    let dropdownList = document.getElementById('dropdown');
+    dropdownList.onchange = (e) => {
+            console.log("Selected value is: " + dropdownList.value);
+            currPlatform = dropdownList.value;
+        }
+
+    let addBtn = document.getElementById('add-btn')
+    addBtn.onclick = (e)=>{
+        if (!platformList.includes(currPlatform) && currPlatform) {
+            //  only runs if value not in array
+            platformList.push(currPlatform);
+            console.log(platformList);
+            document.getElementById("list").innerHTML = "";
+            platformList.map((platform)=>{
+                var div = document.createElement("div");
+                div.innerHTML = platform.split("_")[0];
+                div.setAttribute("class","div") 
+                document.getElementById("list").appendChild(div);
+    
+            })
+        }
+    }
+
+    let cnf = document.getElementById('btn');
+    let best_platform = null
+    cnf.onclick = function(){
+        // e.preventDefault(); 
+          // Get the receiver endpoint from Python using fetch:
+        fetch("http://127.0.0.1:5000/process",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(platformList)
+            }).then(res => {
+                if (res.ok) {
+                    return res.json()
+                } else {
+                    alert("something is wrong")
+                }
+            }).then(result => {
+                best_platform= result['top_platform'] 
+                console.log(best_platform);
+                let divs = document.createElement("div");
+                divs.innerHTML = best_platform;
+                divs.setAttribute("class", "div")
+                document.getElementById("main-div").innerHTML = "";
+                document.getElementById("main-div").appendChild(divs);
+            }
+            ).catch((err) => console.error(err));
+        // logic to send the platformList and get the result from python
+        
+    }
+    </script>
+</html>
