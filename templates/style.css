@@ -64,3 +64,34 @@
     font-size: 15px;
 }
 
+@media screen and (max-width: 1000px) {
+        .akash {
+            width: 500px;
+            margin-top: 15%;
+        }
+
+        .sel {
+            width: 250px;
+            font-size: 12px;
+            align-items: center;
+            margin-left: 65px;
+        }
+
+        .add-btn,
+        .btn {
+            width: 60px;
+            height: 30px;
+            font-size: 12px;
+        }
+
+        .div {
+            width: 250px;
+            margin-right: 0px;
+            margin-bottom: 5px;
+            padding-left: 5px;
+        }
+
+        .list {
+            width: 50px;
+        }
+    }
