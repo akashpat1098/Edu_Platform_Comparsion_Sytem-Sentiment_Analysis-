@@ -4,7 +4,7 @@ import pandas as pd
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_cors import cross_origin
-
+import pymongo
 app = Flask(__name__)
 CORS(app) 
 
@@ -16,8 +16,18 @@ def main():
     platformList = request.get_json()
     print(platformList)
     overall_score = []
-    main_extraction(platformList)
-    main_analyser(platformList)
+    # added the logic so that extraction and analyser does not run again
+    client=pymongo.MongoClient()
+    db=client["Sentimental_Tweets"]
+    new_platform_list=[]
+    for platform in platformList:
+        if platform not in db.list_collection_names():
+            new_platform_list.append(platform)
+    print(new_platform_list)
+    if len(new_platform_list) > 0:
+        main_extraction(new_platform_list)
+        main_analyser(new_platform_list)
+            
 
     for collection in platformList:
 

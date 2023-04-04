@@ -106,7 +106,7 @@ if __name__=="__main__":
         for hastag in query[collection]:
             keywords=hastag
             collection_name=collection
-            limit=30
+            limit=60
             tweets_list=extract_tweets(api,keywords,limit)
             storeInDB(tweets_list,collection_name)
             
